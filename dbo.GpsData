@@ -1,0 +1,19 @@
+USE [Dev]  
+GO
+
+/****** Object:  Table [dbo].[GpsData]    Script Date: 26/04/2022 23:43:38 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[GpsData](
+	[ShipmentID] [int] NULL,
+	[Latitude] [float] NOT NULL,
+	[Longitude] [float] NOT NULL,
+	[LocationTime] [datetime2](7) NOT NULL,
+	[ShipmentNumber] [nvarchar](50) NOT NULL
+) ON [PRIMARY]
+GO
+

@@ -1,0 +1,101 @@
+
+
+/****** Object:  StoredProcedure [dbo].[uspLoadShipmentsBooking]    Script Date: 27/04/2022 00:46:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE procedure [dbo].[uspLoadShipmentsBooking]
+	@json nvarchar(max) = ''
+as
+
+set nocount on
+
+drop table if exists #temp
+
+CREATE TABLE #temp(
+	[ShipmentNumber] [nvarchar](50) NULL,
+	[CollectionPostcode] [nvarchar](50) NULL,
+	[DeliveryPostcode] [nvarchar](50) NULL,
+	[BookingDate] [datetime2](7) NULL,
+	[ScheduledCollectionDate] [datetime2](7) NULL,
+	[ScheduledDeliveryDate] [datetime2](7) NULL,
+	[FirstCollectionScheduleEarliest] [datetime2](7) NULL,
+	[FirstCollectionScheduleLatest] [datetime2](7) NULL,
+	[LastDeliveryScheduleEarliest] [datetime2](7) NULL,
+	[LastDeliveryScheduleLatest] [datetime2](7) NULL,
+	[VehicleType] [nvarchar](50) NULL)
+
+	INSERT INTO #temp
+           ([ShipmentNumber]
+           ,[CollectionPostcode]
+           ,[DeliveryPostcode]
+           ,[BookingDate]
+           ,[ScheduledCollectionDate]
+           ,[ScheduledDeliveryDate]
+           ,[FirstCollectionScheduleEarliest]
+           ,[FirstCollectionScheduleLatest]
+           ,[LastDeliveryScheduleEarliest]
+           ,[LastDeliveryScheduleLatest]
+           ,[VehicleType])
+	Select
+		ShipmentNumber,
+		CollectionPostcode,
+		DeliveryPostcode,
+		BookingDate,
+		ScheduledCollectionDate,
+		ScheduledDeliveryDate,
+		FirstCollectionScheduleEarliest,
+		FirstCollectionScheduleLatest,
+		LastDeliveryScheduleEarliest,
+		LastDeliveryScheduleLatest,
+		VehicleType
+	From openjson(@json, '$.ShipmentsBooking')
+	with (
+		ShipmentNumber nvarchar(50) '$.ShipmentNumber',
+		CollectionPostcode nvarchar(50) '$.CollectionPostcode',
+		DeliveryPostcode nvarchar(50) '$.DeliveryPostcode',
+		BookingDate datetime2 '$.BookingDate' ,
+		ScheduledCollectionDate datetime2 '$.ScheduledCollectionDate',
+		ScheduledDeliveryDate datetime2 '$.ScheduledDeliveryDate',
+		FirstCollectionScheduleEarliest datetime2 '$.FirstCollectionScheduleEarliest',
+		FirstCollectionScheduleLatest datetime2 '$.FirstCollectionScheduleLatest',
+		LastDeliveryScheduleEarliest datetime2 '$.LastDeliveryScheduleEarliest',
+		LastDeliveryScheduleLatest datetime2 '$.LastDeliveryScheduleLatest',
+		VehicleType nvarchar '$.VehicleType'
+	)
+
+
+	INSERT INTO [dbo].[ShipmentsBooking]
+           ([ShipmentNumber]
+           ,[CollectionPostcode]
+           ,[DeliveryPostcode]
+           ,[BookingDate]
+           ,[ScheduledCollectionDate]
+           ,[ScheduledDeliveryDate]
+           ,[FirstCollectionScheduleEarliest]
+           ,[FirstCollectionScheduleLatest]
+           ,[LastDeliveryScheduleEarliest]
+           ,[LastDeliveryScheduleLatest]
+           ,[VehicleType])
+		Select
+			ShipmentNumber,
+			CollectionPostcode,
+			DeliveryPostcode,
+			BookingDate,
+			ScheduledCollectionDate,
+			ScheduledDeliveryDate,
+			FirstCollectionScheduleEarliest,
+			FirstCollectionScheduleLatest,
+			LastDeliveryScheduleEarliest,
+			LastDeliveryScheduleLatest,
+			VehicleType
+		From #temp a
+		where not exists (select 1 from [dbo].[ShipmentsBooking] x where x.ShipmentNumber = a.ShipmentNumber)
+
+				
+GO
+

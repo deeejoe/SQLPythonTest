@@ -1,0 +1,29 @@
+
+
+/****** Object:  Table [dbo].[ShipmentsBooking]    Script Date: 26/04/2022 23:47:35 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[ShipmentsBooking](
+	[ShipmentID] [int] IDENTITY(1,1) NOT NULL,
+	[ShipmentNumber] [nvarchar](50) NOT NULL,
+	[CollectionPostcode] [nvarchar](50) NOT NULL,
+	[DeliveryPostcode] [nvarchar](50) NOT NULL,
+	[BookingDate] [datetime2](7) NOT NULL,
+	[ScheduledCollectionDate] [datetime2](7) NOT NULL,
+	[ScheduledDeliveryDate] [datetime2](7) NOT NULL,
+	[FirstCollectionScheduleEarliest] [datetime2](7) NOT NULL,
+	[FirstCollectionScheduleLatest] [datetime2](7) NOT NULL,
+	[LastDeliveryScheduleEarliest] [datetime2](7) NOT NULL,
+	[LastDeliveryScheduleLatest] [datetime2](7) NOT NULL,
+	[VehicleType] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Shipments_Booking] PRIMARY KEY CLUSTERED 
+(
+	[ShipmentID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+

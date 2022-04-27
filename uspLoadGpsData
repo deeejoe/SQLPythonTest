@@ -1,0 +1,65 @@
+
+/****** Object:  StoredProcedure [dbo].[uspLoadGpsData]    Script Date: 27/04/2022 00:45:21 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE procedure [dbo].[uspLoadGpsData]
+	@json nvarchar(max) = ''
+as
+set nocount on
+	
+	drop table if exists #temp
+
+CREATE TABLE #temp (
+	[ShipmentID] [int] NULL,
+	[Latitude] [float] NULL,
+	[Longitude] [float] NULL,
+	[LocationTime] [datetime2](7) NULL,
+	[ShipmentNumber] [nvarchar](50) NULL
+)
+
+
+insert into #temp
+ ([ShipmentNumber]
+           ,[Latitude]
+           ,[Longitude]
+           ,[LocationTime])
+
+	Select
+		ShipmentNumber,
+		Latitude,
+		Longitude,
+		LocationTime
+	from OPENJSON(@json,'$.GpsData')
+	with ( ShipmentNumber nvarchar(50) '$.ShipmentNumber',
+			Latitude float '$.Latitude',
+			Longitude float '$.Longitude',
+			LocationTime datetime2 '$.LocationTime')
+
+	update a
+	set a.ShipmentID = b.ShipmentID
+	from #temp as a join ShipmentsBooking as b on a.ShipmentNumber = b.ShipmentNumber
+
+INSERT INTO [dbo].[GpsData]
+           ([ShipmentID]
+		   ,[ShipmentNumber]
+           ,[Latitude]
+           ,[Longitude]
+           ,[LocationTime])
+select 
+		ShipmentID,
+		ShipmentNumber,
+		Latitude,
+		Longitude,
+		LocationTime
+from #temp x
+where not exists ( select 1 from [dbo].[GpsData] y where y.ShipmentID = x.ShipmentID and y.Latitude = x.Latitude and y.Longitude = x.Longitude and y.LocationTime = x.LocationTime)
+
+	
+				
+GO
+
